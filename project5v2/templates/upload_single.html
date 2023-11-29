@@ -1,0 +1,261 @@
+{% include 'navbar.html' %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>PRP - DM (Incentive)</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			/* Add CSS styles for the table container */
+			#table-container {
+            max-height: 400px; /* Adjust the maximum height as needed */
+            overflow-y: auto; /* Add a vertical scrollbar when content overflows */
+            margin-bottom: 30px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container mt-5">
+			<h1>Incentive Statement Self - Uploader</h1>
+			<form method="POST" enctype="multipart/form-data" action="/upload" id="upload-form">
+				
+				<hr>
+				<div class="form-group mb-2">
+					<div class="col-sm-5">
+						<input type="file" name="file" accept=".xlsx, .xls" class="form-control mb-2" id="file-input" required>
+						<!-- Clear button to remove the chosen file -->
+					</div>
+				</div>
+				
+				<div class="form-group  mb-2">
+					<div class="col-sm-5">
+						<button type="submit" class="btn btn-primary" id="upload-button">Upload</button>
+						<button type="button" class="btn btn-danger" id="clear-button">Clear</button>
+					</div>
+				</div>		
+			</form>
+			
+			<br></br>
+			
+			{% if worksheet_names %}
+			<!-- <h4>Available Worksheets</h4> -->
+			<form method="POST" id="worksheet-form">
+				<div class="form-group mb-2">
+					<div class="col-sm-5">
+						<label for="worksheet">Worksheet:</label>
+						<select class="form-control" id="worksheet" name="worksheet">
+							{% for sheet_name in worksheet_names %}
+							<option value="{{ sheet_name }}">{{ sheet_name }}</option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+				
+				<!-- Display the selected file name (after choosing a worksheet) -->
+				<div id="selected-file-name"></div>
+				
+				<!-- Input Form 1 -->
+				<div class="form-group mb-2">
+					<div class="col-sm-5">
+						<label for="category">Category: </label>
+						<select class="form-control" id="category" name="category" required>
+							<option value="" disabled selected></option>
+							{% for category, value in categories %}
+							<option value="{{ value }}">{{ category }}</option>
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+				
+				<!-- Input Form 2 -->
+				<div class="form-group  mb-2">
+					<div class="col-sm-5">
+						<label for="month">Month: </label>
+						<select class="form-control" id="month" name="month" required>
+							<option value="" disabled selected></option>
+							{% for month, value in months %}
+							<option value="{{ value }}">{{ month }}</option>					
+							{% endfor %}
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group  mb-2">
+					<div class="col-sm-5">
+						<!-- Submit button to trigger data processing -->
+						<button type="button" class="btn btn-primary mt-3" id="submit-button">Process Data</button>
+						<button type="button" class="btn btn-primary mt-3" id="append-db-button">Submit Data</button>
+					</div>
+				</div>		
+			</form>
+			
+			{% else %}
+			<p>No worksheets available.</p>
+			{% endif %}
+			
+			<div id="table-container">
+				<!-- Table content will be dynamically added here -->
+			</div>
+			
+			<!-- Error message container -->
+			<!-- <div id="error-message" class="alert alert-danger" style="display: none;"></div> -->
+			
+		</div>
+		
+		<!-- Include Bootstrap JS and jQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+		<script>
+			$(document).ready(function () {
+				// Variables to store selected values
+				var selectedCategory = "";
+				var selectedMonth = "";
+				
+				// Function to load data for the selected worksheet
+				function loadWorksheetData(worksheetName) {
+					$.ajax({
+						url: "/fetch_data",
+						method: "POST",
+						data: {
+							worksheet: worksheetName,
+							uploaded_file: "{{ uploaded_file }}",
+							category: selectedCategory,
+							month: selectedMonth
+						},
+						success: function (data) {
+							// Display the data as a Bootstrap table
+							$("#table-container").html(data);
+						},
+						error: function (error) {
+							console.log(error);
+						}
+					});
+				}
+				
+				// Initialize the page by loading worksheet names and setting up automatic table generation
+				function initializePage() {
+					// Load worksheet names and populate the dropdown
+					$.ajax({
+						url: "/get_worksheet_names",
+						method: "POST",
+						data: {
+							uploaded_file: "{{ uploaded_file }}"
+						},
+						success: function (data) {
+							var worksheetDropdown = $("#worksheet");
+							worksheetDropdown.empty();
+							$.each(data, function (index, sheet_name) {
+								worksheetDropdown.append($('<option>').text(sheet_name).val(sheet_name));
+							});
+							
+							// Trigger a change event to load the first worksheet initially
+							worksheetDropdown.change();
+						},
+						error: function (error) {
+							console.log(error);
+						}
+					});
+					
+					// Handle the worksheet selection change event
+					$("#worksheet").change(function () {
+						var selectedWorksheet = $(this).val();
+						loadWorksheetData(selectedWorksheet);
+					});
+					
+					// Store selected category and month values when dropdowns change
+					$("#category").change(function () {
+						selectedCategory = $(this).val();
+					});
+					
+					$("#month").change(function () {
+						selectedMonth = $(this).val();
+					});
+				}
+				
+				// Initialize the page
+				initializePage();
+				
+				// Display the uploaded file name when a file is selected
+				$("#file-input").change(function () {
+					var fileName = $(this).val().split('\\').pop();
+					// $("#file-name").text("Uploaded File: " + fileName);
+					// $("#selected-file-name").text("Selected File: " + fileName);
+				});
+				
+				// Clear the selected file when the Clear button is clicked
+				$("#clear-button").click(function () {
+					$("#file-input").val(""); // Reset the file input
+					// $("#file-name").text("No file chosen"); // Reset the displayed file name
+					$("#worksheet").val(""); // Reset the selected worksheet
+					$("#table-container").html(""); // Clear the displayed table
+					$("#selected-file-name").text(""); // Clear the selected file name
+					
+					// Clear the stored category and month values
+					selectedCategory = "";
+					selectedMonth = "";
+				});
+				
+				
+				// Worksheet selection change event
+				$("#worksheet").change(function () {
+					// Show the submit button when a worksheet is selected
+					$("#submit-button").show();
+					// Reset the stored category and month values when the worksheet changes
+					selectedCategory = "";
+					selectedMonth = "";
+				});
+				
+				// Submit button click event
+				$("#submit-button").click(function () {
+					// Call the process_data endpoint to handle data processing
+					$.ajax({
+						url: "/process_data",
+						method: "POST",
+						data: {
+							worksheet: $("#worksheet").val(),
+							uploaded_file: "{{ uploaded_file }}",
+							category: selectedCategory,
+							month: selectedMonth
+						},
+						success: function (data) {
+							// Clear the existing table content
+							$("#table-container").empty();
+							// Append the updated content to the table container
+							$("#table-container").append(data);
+						},
+						error: function (error) {
+							// Handle error (if needed)
+							console.log("Error processing data: " + error.responseText);
+						}
+					});
+				});
+				
+				// Append to database button click event
+				$("#append-db-button").click(function () {
+					// Call the append_to_db endpoint to append the DataFrame to the database
+					$.ajax({
+						url: "/append_to_db",
+						method: "POST",
+						data: {
+							worksheet: $("#worksheet").val(),
+							uploaded_file: "{{ uploaded_file }}",
+							category: selectedCategory,
+							month: selectedMonth
+						},
+						success: function (data) {
+							// Display success alert
+							alert("Data appended to database successfully");
+						},
+						error: function (error) {
+							// Display error alert
+							alert("Error appending data to database: " + error.responseText);
+						}
+					});
+				});
+				
+			});
+			
+		</script>
+	</body>
+</html>			

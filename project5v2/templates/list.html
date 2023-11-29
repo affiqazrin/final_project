@@ -1,0 +1,111 @@
+{% include 'navbar.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Add CSS styles for the table container */
+        #table-container {
+            max-height: 400px; /* Adjust the maximum height as needed */
+            overflow-y: auto; /* Add a vertical scrollbar when content overflows */
+            margin-bottom: 30px;
+        }
+    </style>
+    <title>Data (Daily)</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>ETL Report - Daily</h1>
+        <hr>
+
+        <div class="form-group mb-2">
+			<div class="col-sm-5">
+                <input type="file" name="file" accept=".xlsx, .xls" class="form-control mb-2" id="fileInput" required>                
+			</div>
+        </div>
+
+        <div class="form-group  mb-2">
+			<div class="col-sm-5">
+				<button class="btn btn-primary" onclick="addFile()">Add File</button>
+			</div>
+        </div>
+		
+
+		<!--
+        <div class="row">
+            <div class="col-sm-5">
+                <input type="file" id="fileInput" class="form-control mb-2">
+                <button class="btn btn-primary" onclick="addFile()">Add File</button>
+            </div>
+        </div>
+		-->
+		
+		<br></br>
+
+	
+		<div class="form-group mb-2">
+			<table class="table mt-3">
+				<thead>
+					<tr>
+						<th>File Name</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="fileList">
+                <!-- Files will be added dynamically here -->
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+
+
+    <script>
+        function addFile() {
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const fileName = fileInput.value.split('\\').pop(); // Extract file name
+            const row = document.createElement('tr');
+
+            if (fileName) {
+                row.innerHTML = `
+                    <td>${fileName}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="runFile(this)">Run</button>
+                        <button class="btn btn-warning btn-sm" onclick="modifyFile(this)">Modify</button>
+						<button class="btn btn-danger btn-sm" onclick="deleteFile(this)">Delete</button>
+                    </td>
+                `;
+                fileList.appendChild(row);
+                fileInput.value = ''; // Clear file input
+            } else {
+                alert('Please select a file.');
+            }
+        }
+
+        function modifyFile(button) {
+            const row = button.closest('tr');
+            const fileName = row.querySelector('td:first-child').textContent;
+            // Implement modify file logic here
+            alert(`Modify: ${fileName}`);
+        }
+
+        function deleteFile(button) {
+            const row = button.closest('tr');
+            const fileName = row.querySelector('td:first-child').textContent;
+            if (confirm(`Are you sure you want to delete ${fileName}?`)) {
+                row.remove();
+                // Implement delete file logic here
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+

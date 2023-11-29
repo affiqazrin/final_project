@@ -1,0 +1,74 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0-beta2/css/all.min.css">
+<div class="container">
+    <a class="navbar-brand" href="/"><b>PRP - DM</b></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+
+            <!-- Category 1: Home
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+			 -->
+			
+            <!-- Category 2: Data -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="/" id="additionalPagesDropdown" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Data
+                </a>
+                <div class="dropdown-menu" aria-labelledby="additionalPagesDropdown">
+                    <a class="dropdown-item" href="/list">Report - Daily</a>
+                    <a class="dropdown-item" href="/">Report - Monthly</a>
+                </div>
+            </li>	
+			
+		    <!-- Category 3: Module Incentive -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="additionalPagesDropdown" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Incentive
+                </a>
+                <div class="dropdown-menu" aria-labelledby="additionalPagesDropdown">
+                    <a class="dropdown-item" href="/upload">Incentive Statement Self - Uploader</a>
+                    <a class="dropdown-item" href="/">Incentive Stafflisting (INSM)</a>
+					<a class="dropdown-item" href="/get_data">test</a>
+                </div>
+            </li>
+						
+			<!-- Category 4: Module KPI -->
+            <li class="nav-item">
+                <a class="nav-link" href="/">KPI</a>
+            </li>
+
+			<!-- Category 4: Module GCEO -->
+            <li class="nav-item">
+                <a class="nav-link" href="/">GCEO</a>
+            </li>			
+
+
+
+
+        </ul>
+    </div>
+	</div>
+</nav>
+
+<style>
+    /* Style for the fixed navigation bar */
+    .navbar.fixed-top {
+        background-color: #fff; /* Set the background color when fixed */
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow when fixed */
+    }
+
+    /* Adjust the padding for the content to prevent it from being obscured by the fixed navbar */
+    body {
+        padding-top: 70px; /* Adjust this value to match the height of your navbar */
+    }
+</style>
